@@ -2,7 +2,7 @@ use crate::opts::Opts;
 use anyhow::{Context, Result};
 use std::path::PathBuf;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Operation {
     Print(Option<String>),
     Add(String, String),
@@ -94,4 +94,67 @@ fn get_pwd(pwd: Option<PathBuf>) -> Result<PathBuf> {
 
     let loc = std::env::current_dir().context("missing current directory")?;
     return Ok(loc);
+}
+
+#[cfg(test)]
+mod test {
+    use super::Config;
+    use crate::{config::Operation, opts::Opts};
+    use anyhow::Result;
+
+    #[test]
+    fn test_print_all() -> Result<()> {
+        let opts: Config = Opts {
+            pwd: None,
+            config: None,
+            args: vec![],
+        }
+        .try_into()?;
+
+        assert_eq!(opts.operation, Operation::Print(None));
+        return Ok(());
+    }
+
+    #[test]
+    fn test_print_key() -> Result<()> {
+        let opts: Config = Opts {
+            pwd: None,
+            config: None,
+            args: vec!["foo".into()],
+        }
+        .try_into()?;
+
+        assert_eq!(opts.operation, Operation::Print(Some("foo".into())));
+        return Ok(());
+    }
+
+    #[test]
+    fn test_add_key() -> Result<()> {
+        let opts: Config = Opts {
+            pwd: None,
+            config: None,
+            args: vec![
+                String::from("add"),
+                String::from("foo"),
+                String::from("bar"),
+            ],
+        }
+        .try_into()?;
+
+        assert_eq!(opts.operation, Operation::Add("foo".into(), "bar".into()));
+        return Ok(());
+    }
+
+    #[test]
+    fn test_remove_key() -> Result<()> {
+        let opts: Config = Opts {
+            pwd: None,
+            config: None,
+            args: vec![String::from("remove"), String::from("foo")],
+        }
+        .try_into()?;
+
+        assert_eq!(opts.operation, Operation::Remove("foo".into()));
+        return Ok(());
+    }
 }

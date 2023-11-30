@@ -1,5 +1,5 @@
 import { Opts } from './opts';
-import path from 'path';
+import * as path from 'path';
 
 export enum Operation {
     Print,
@@ -51,7 +51,7 @@ function getOperation(opts: Opts): Operation {
         case "remove":
             return Operation.Remove;
         default:
-            throw new Error(`Unknown operation: ${opts.args[0]}`);
+            return Operation.Print;
     }
 }
 
